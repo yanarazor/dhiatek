@@ -1,0 +1,31 @@
+# For more information: https://laravel.com/docs/sail
+version: "3"
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: dhiatekweb
+        ports:
+            - "${APP_PORT:-82}:80"
+        volumes:
+            - ".:/var/www/html"
+        networks:
+            - dhiatekweb
+        depends_on:
+            - redis
+    redis:
+        image: "redis:alpine"
+        ports:
+            - "${FORWARD_REDIS_PORT:-6379}:6379"
+        volumes:
+            - "./redis:/data"
+        networks:
+            - dhiatekweb
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            retries: 3
+            timeout: 5s
+networks:
+    dhiatekweb:
+        driver: bridge
